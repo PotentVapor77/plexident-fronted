@@ -1,8 +1,7 @@
 // services/patientService.ts
 import axios from 'axios';
 import type { IPatient } from '../types/IPatient';
-
-const BASE_URL = "http://localhost:8000/tasks/api/patients/";
+const BASE_URL = "http://localhost:8000/api/pacientes/";
 
 // Función para obtener todos los pacientes
 export const getAllPatients = async (): Promise<IPatient[]> => {

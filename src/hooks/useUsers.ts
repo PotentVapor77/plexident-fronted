@@ -1,66 +1,99 @@
 // hooks/useUsers.ts
-import { useState, useEffect } from 'react';
-import type { User } from '../services/userService';
-import { getAllUsers, updateUser, deleteUser } from '../services/userService';
-
-export function useUsers() {
+import { useState, useEffect, useCallback } from 'react';
+import { getAllUsers, createUser, updateUser, deleteUser } from '../services/userService';
+import { useAuth , type User } from '../context/AuthContext';
+export const useUsers = () => {
   const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { isAuthenticated, token } = useAuth();
 
-  const fetchUsers = async () => {
+  // 🔹 Cargar usuarios
+  const loadUsers = useCallback(async (): Promise<void> => {
+    if (!isAuthenticated || !token) {
+      setError('No estás autenticado');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
     try {
-      setLoading(true);
-      setError(null);
       const usersData = await getAllUsers();
       setUsers(usersData);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Error al cargar los usuarios";
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido al cargar usuarios';
+      console.error('Error fetching users:', errorMessage);
       setError(errorMessage);
-      console.error("Error fetching users:", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [isAuthenticated, token]);
 
-  const handleUpdateUser = async (id: string, userData: any) => {
+  // 🔹 Crear usuario
+  const addUser = useCallback(async (userData: Omit<User, 'id'> & { contrasena: string }): Promise<User> => {
+    if (!isAuthenticated) {
+      throw new Error('No estás autenticado');
+    }
+
     try {
-      setError(null);
+      const newUser = await createUser(userData);
+      await loadUsers(); // Recargar la lista
+      return newUser;
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido al crear usuario';
+      console.error('Error creating user:', errorMessage);
+      throw new Error(errorMessage);
+    }
+  }, [isAuthenticated, loadUsers]);
+
+  // 🔹 Actualizar usuario
+  const editUser = useCallback(async (id: string, userData: Partial<User> & { contrasena?: string }): Promise<User> => {
+    if (!isAuthenticated) {
+      throw new Error('No estás autenticado');
+    }
+
+    try {
       const updatedUser = await updateUser(id, userData);
-      await fetchUsers();
+      await loadUsers(); // Recargar la lista
       return updatedUser;
-    } catch (err: any) {
-      const errorMessage = err instanceof Error ? err.message : 'Error al actualizar usuario';
-      setError(errorMessage);
-      console.error('Error al actualizar usuario:', err);
-      throw err;
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido al actualizar usuario';
+      console.error('Error updating user:', errorMessage);
+      throw new Error(errorMessage);
     }
-  };
+  }, [isAuthenticated, loadUsers]);
 
-  const handleDeleteUser = async (id: string) => {
+  // 🔹 Eliminar usuario
+  const removeUser = useCallback(async (id: string): Promise<void> => {
+    if (!isAuthenticated) {
+      throw new Error('No estás autenticado');
+    }
+
     try {
-      setError(null);
       await deleteUser(id);
-      await fetchUsers();
-      return true;
-    } catch (err: any) {
-      const errorMessage = err instanceof Error ? err.message : 'Error al eliminar usuario';
-      setError(errorMessage);
-      console.error('Error al eliminar usuario:', err);
-      throw err;
+      await loadUsers(); // Recargar la lista
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido al eliminar usuario';
+      console.error('Error deleting user:', errorMessage);
+      throw new Error(errorMessage);
     }
-  };
+  }, [isAuthenticated, loadUsers]);
 
+  // 🔹 Cargar usuarios al montar el componente
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    if (isAuthenticated) {
+      loadUsers();
+    }
+  }, [isAuthenticated, loadUsers]);
 
   return {
     users,
     loading,
     error,
-    fetchUsers,
-    handleUpdateUser,
-    handleDeleteUser
+    loadUsers,
+    addUser,
+    editUser,
+    removeUser,
   };
-}
+};

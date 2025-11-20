@@ -1,13 +1,13 @@
 // hooks/usePatients.ts
 import { useState, useEffect } from 'react';
-import type { Patient } from '../services/patientService';
+import type { IPatient } from '../types/IPatient';
 import { getAllPatients, updatePatient, deletePatient } from '../services/patientService';
 
 // Tipo para datos de actualización (excluye campos que no se pueden actualizar)
-type PatientUpdateData = Omit<Partial<Patient>, 'id_paciente' | 'id' | 'created_at' | 'updated_at'>;
+type PatientUpdateData = Omit<Partial<IPatient>, 'id_paciente' | 'id' | 'created_at' | 'updated_at'>;
 
 export function usePatients() {
-  const [patients, setPatients] = useState<Patient[]>([]);
+  const [patients, setPatients] = useState<IPatient[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

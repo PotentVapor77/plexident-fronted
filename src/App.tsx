@@ -1,6 +1,8 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router";
+// App.tsx
+import { Routes, Route, Navigate } from "react-router-dom"; // ✅ Ya está correcto
+import { useAuth } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 import SignIn from "./pages/AuthPages/SignIn";
-import SignUp from "./pages/AuthPages/SignUp";
 import NotFound from "./pages/OtherPage/NotFound";
 import UserProfiles from "./pages/UserProfiles";
 import Videos from "./pages/UiElements/Videos";
@@ -18,63 +20,75 @@ import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
-// Importar las páginas de odontología
 import Patients from "./pages/Dentistry/Patients";
 import CreatePatient from "./pages/Dentistry/CreatePatient";
 import Agenda from "./pages/Dentistry/Agenda";
 import Users from "./pages/Dentistry/Users";
 import CreateUser from "./pages/Dentistry/CreateUser";
 
+// Rutas públicas que redirigen si ya está autenticado
+function PublicRoute({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  return user ? <Navigate to="/" replace /> : <>{children}</>;
+}
 
 export default function App() {
   return (
     <>
-      <Router>
-        <ScrollToTop />
-        <Routes>
-          {/* Dashboard Layout */}
-          <Route element={<AppLayout />}>
-            <Route index path="/" element={<Home />} />
-            <Route path="/pacientes" element={<Patients/>} />
+      <ScrollToTop />
+      <Routes>
+        {/* Auth Layout - Rutas públicas */}
+        <Route
+          path="/signin"
+          element={
+            <PublicRoute>
+              <SignIn />
+            </PublicRoute>
+          }
+        />
 
-            <Route path="/registrar-paciente" element={<CreatePatient />} />
+        {/* Dashboard Layout - Rutas protegidas */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Home />} /> {/* ✅ CORREGIDO: quitar path="/" */}
+          <Route path="/pacientes" element={<Patients />} />
+          <Route path="/registrar-paciente" element={<CreatePatient />} />
+          <Route path="/agenda" element={<Agenda />} />
+          <Route path="/usuarios" element={<Users />} />
+          <Route path="/registrar-usuario" element={<CreateUser />} />
 
-            <Route path="/agenda" element={<Agenda />} />
+          {/* Others Page */}
+          <Route path="/profile" element={<UserProfiles />} />
+          <Route path="/calendar" element={<Calendar />} />
+          <Route path="/blank" element={<Blank />} />
 
-            <Route path="/usuarios" element={< Users/>} />
-            <Route path="/registrar-usuario" element={<CreateUser />} />
-            {/* Others Page */}
-            <Route path="/profile" element={<UserProfiles />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/blank" element={<Blank />} />
+          {/* Forms */}
+          <Route path="/form-elements" element={<FormElements />} />
 
-            {/* Forms */}
-            <Route path="/form-elements" element={<FormElements />} />
+          {/* Tables */}
+          <Route path="/basic-tables" element={<BasicTables />} />
 
-            {/* Tables */}
-            <Route path="/basic-tables" element={<BasicTables />} />
+          {/* Ui Elements */}
+          <Route path="/alerts" element={<Alerts />} />
+          <Route path="/avatars" element={<Avatars />} />
+          <Route path="/badge" element={<Badges />} />
+          <Route path="/buttons" element={<Buttons />} />
+          <Route path="/images" element={<Images />} />
+          <Route path="/videos" element={<Videos />} />
 
-            {/* Ui Elements */}
-            <Route path="/alerts" element={<Alerts />} />
-            <Route path="/avatars" element={<Avatars />} />
-            <Route path="/badge" element={<Badges />} />
-            <Route path="/buttons" element={<Buttons />} />
-            <Route path="/images" element={<Images />} />
-            <Route path="/videos" element={<Videos />} />
+          {/* Charts */}
+          <Route path="/line-chart" element={<LineChart />} />
+          <Route path="/bar-chart" element={<BarChart />} />
+        </Route>
 
-            {/* Charts */}
-            <Route path="/line-chart" element={<LineChart />} />
-            <Route path="/bar-chart" element={<BarChart />} />
-          </Route>
-
-          {/* Auth Layout */}
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
-
-          {/* Fallback Route */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Router>
+        {/* Fallback Route */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
     </>
   );
 }
