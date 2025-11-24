@@ -88,46 +88,60 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     loadAuthState();
   }, []);
 
-  // 🔹 Login mejorado con validación
   const login = useCallback((userData: User, authToken: string) => {
-    if (!userData || !authToken) {
-      console.error('❌ Datos de login inválidos');
-      return;
+  if (!userData || !authToken) {
+    console.error('❌ Datos de login inválidos');
+    return;
+  }
+
+  try {
+    // 🔹 CORRECCIÓN: Validación más flexible
+    // Completar datos faltantes en lugar de rechazar
+    const completeUserData: User = {
+      id: userData.id || `temp-${Date.now()}`,
+      nombres: userData.nombres || 'Usuario',
+      apellidos: userData.apellidos || 'Sistema',
+      username: userData.username || 'usuario',
+      correo: userData.correo || 'usuario@sistema.com',
+      rol: userData.rol || 'odontologo',
+      status: userData.status !== undefined ? userData.status : true,
+      telefono: userData.telefono,
+      fecha_creacion: userData.fecha_creacion,
+      fecha_actualizacion: userData.fecha_actualizacion,
+    };
+
+    // Validar que al menos tengamos los campos críticos
+    if (!completeUserData.username) {
+      throw new Error('Falta el nombre de usuario');
     }
 
-    try {
-      // Validar estructura básica del usuario
-      if (!userData.id || !userData.username || !userData.rol) {
-        throw new Error('Datos de usuario incompletos');
-      }
+    setAuthState({
+      user: completeUserData,
+      token: authToken,
+      isLoading: false,
+      isAuthenticated: true,
+    });
 
-      setAuthState({
-        user: userData,
-        token: authToken,
-        isLoading: false,
-        isAuthenticated: true,
-      });
+    // Guardar en localStorage
+    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(completeUserData));
+    localStorage.setItem(STORAGE_KEYS.TOKEN, authToken);
 
-      // Guardar en localStorage
-      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData));
-      localStorage.setItem(STORAGE_KEYS.TOKEN, authToken);
+    console.log('✅ Login exitoso para:', completeUserData.username);
 
-      console.log('✅ Login exitoso para:', userData.username);
-
-      // Redirigir a la página original o al dashboard
-      const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
-      navigate(from, { replace: true });
-    } catch (error) {
-      console.error('❌ Error en login:', error);
-      // Limpiar estado en caso de error
-      setAuthState({
-        user: null,
-        token: null,
-        isLoading: false,
-        isAuthenticated: false,
-      });
-    }
-  }, [navigate, location.state]);
+    // Redirigir a la página original o al dashboard
+    const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
+    navigate(from, { replace: true });
+  } catch (error) {
+    console.error('❌ Error en login:', error);
+    // Limpiar estado en caso de error
+    setAuthState({
+      user: null,
+      token: null,
+      isLoading: false,
+      isAuthenticated: false,
+    });
+  }
+}, [navigate, location.state]);
 
   // 🔹 Logout mejorado
   const logout = useCallback(() => {

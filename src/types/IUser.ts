@@ -4,6 +4,7 @@ export interface IUser {
   id: string;
   nombres: string;
   apellidos: string;
+  telefono?: string; 
   correo: string;
   rol: 'admin' | 'odontologo' | 'asistente';
   status?: boolean;
@@ -14,6 +15,7 @@ export interface IUser {
 export interface ICreateUserData {
   nombres: string;
   apellidos: string;
+  telefono?: string; 
   correo: string;
   contrasena: string; // Se envía como texto plano, el backend la hashea
   rol: 'admin' | 'odontologo' | 'asistente';
@@ -24,6 +26,7 @@ export interface IUpdateUserData {
   nombres?: string;
   apellidos?: string;
   correo?: string;
+  telefono?: string; 
   contrasena?: string;
   rol?: 'admin' | 'odontologo' | 'asistente';
   status?: boolean;
@@ -66,6 +69,7 @@ export interface UserFormData {
   status: boolean;
   nombres: string;
   apellidos: string;
+  telefono: string;
   correo: string;
   contrasena: string;
   confirmar_contrasena: string;

@@ -1,138 +1,134 @@
-// services/userService.ts
+// services/userService.ts - VERSIÓN CORREGIDA
 import axios from 'axios';
 import type { IUser, ICreateUserData, IUpdateUserData } from '../types/IUser';
-import { getAccessToken } from './authService'; // ✅ Ahora esta importación funcionará
 
 const BASE_URL = 'http://localhost:8000/api/users/';
 
-// Función para obtener el token CSRF
-function getCSRFToken(): string {
-  const name = 'csrftoken';
-  let cookieValue = '';
-  if (document.cookie && document.cookie !== '') {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === (name + '=')) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-}
-
 // 🔹 Crear configuración de headers con autenticación JWT
-const getAuthConfig = () => {
-  const token = getAccessToken(); // ✅ Ahora esta función existe
-  
+const createAuthConfig = (token: string) => {
   if (!token) {
-    throw new Error('No hay token de autenticación disponible. Por favor, inicia sesión nuevamente.');
+    throw new Error('No hay token de autenticación disponible');
   }
 
   return {
     headers: {
       'Content-Type': 'application/json',
-      'X-CSRFToken': getCSRFToken(),
       'Authorization': `Bearer ${token}`,
     },
-    withCredentials: true,
+    // withCredentials: true, // ⛔ ELIMINAR - no necesario con JWT
   };
 };
 
-// 🔹 Crear usuario - CON AUTENTICACIÓN JWT
-export const createUser = async (userData: ICreateUserData): Promise<IUser> => {
-  try {
-    console.log('📝 Creando usuario con datos:', {
-      ...userData,
-      contrasena: '***',
-    });
+// 🔹 Interfaz para la respuesta del backend
+interface UsersResponse {
+  count?: number;
+  next?: string | null;
+  previous?: string | null;
+  results?: IUser[]; // Si usa paginación
+}
 
-    const config = getAuthConfig();
+// 🔹 Obtener todos los usuarios
+export const getAllUsers = async (token: string): Promise<IUser[]> => {
+  try {
+    const config = createAuthConfig(token);
+    const response = await axios.get<UsersResponse | IUser[]>(BASE_URL, config);
+    
+    console.log('📨 Respuesta de usuarios:', response.data);
+    
+    // 🔹 Manejar diferentes formatos de respuesta
+    let users: IUser[];
+    
+    if (Array.isArray(response.data)) {
+      // Si es un array directo
+      users = response.data;
+    } else if (response.data.results && Array.isArray(response.data.results)) {
+      // Si tiene paginación (results)
+      users = response.data.results;
+    } else {
+      console.error('❌ Formato de respuesta inesperado:', response.data);
+      throw new Error('Formato de respuesta inesperado del servidor');
+    }
+    
+    console.log(`✅ Obtenidos ${users.length} usuarios`);
+    return users;
+    
+  } catch (error: unknown) {
+    console.error('❌ Error en getAllUsers:', error);
+    
+    if (axios.isAxiosError(error)) {
+      const message = error.response?.data?.detail || 
+                     error.response?.data?.error || 
+                     error.response?.data?.message || 
+                     'Error al obtener usuarios';
+      throw new Error(message);
+    }
+    
+    throw new Error('Error de conexión con el servidor');
+  }
+};
+
+// 🔹 Crear usuario
+export const createUser = async (token: string, userData: ICreateUserData): Promise<IUser> => {
+  try {
+    const config = createAuthConfig(token);
     const response = await axios.post<IUser>(BASE_URL, userData, config);
-    
-    console.log('✅ Usuario creado exitosamente');
     return response.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
-      console.error('❌ Error creando usuario:', error.response?.data);
-      
-      if (error.response?.status === 401) {
-        throw new Error('Sesión expirada. Por favor, vuelve a iniciar sesión.');
-      }
-      
-      if (error.response?.status === 403) {
-        throw new Error('No tienes permisos para realizar esta acción.');
-      }
-      
-      throw new Error(error.response?.data?.detail || 'Error al crear usuario');
+      const message = error.response?.data?.detail || 
+                     error.response?.data?.error || 
+                     'Error al crear usuario';
+      throw new Error(message);
     }
     throw error;
   }
 };
 
-// 🔹 Obtener todos los usuarios - CON AUTENTICACIÓN JWT
-export const getAllUsers = async (): Promise<IUser[]> => {
+// 🔹 Actualizar usuario
+export const updateUser = async (token: string, id: string, userData: IUpdateUserData): Promise<IUser> => {
   try {
-    const config = getAuthConfig();
-    const response = await axios.get<IUser[]>(BASE_URL, config);
-    return response.data;
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      console.error('❌ Error obteniendo usuarios:', error.response?.data);
-      
-      if (error.response?.status === 401) {
-        throw new Error('Sesión expirada. Por favor, vuelve a iniciar sesión.');
-      }
-      
-      throw new Error(error.response?.data?.detail || 'Error al obtener usuarios');
-    }
-    throw error;
-  }
-};
-
-// 🔹 Actualizar usuario - CON AUTENTICACIÓN JWT
-export const updateUser = async (id: string, userData: IUpdateUserData): Promise<IUser> => {
-  try {
-    console.log(`📝 Actualizando usuario ${id}`, {
-      ...userData,
-      contrasena: userData.contrasena ? '***' : undefined,
-    });
-
-    const config = getAuthConfig();
+    const config = createAuthConfig(token);
     const response = await axios.put<IUser>(`${BASE_URL}${id}/`, userData, config);
-    
-    console.log('✅ Usuario actualizado exitosamente');
     return response.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
-      console.error(`❌ Error actualizando usuario ${id}:`, error.response?.data);
-      
-      if (error.response?.status === 401) {
-        throw new Error('Sesión expirada. Por favor, vuelve a iniciar sesión.');
-      }
-      
-      throw new Error(error.response?.data?.detail || 'Error al actualizar usuario');
+      const message = error.response?.data?.detail || 
+                     error.response?.data?.error || 
+                     'Error al actualizar usuario';
+      throw new Error(message);
     }
     throw error;
   }
 };
 
-// 🔹 Eliminar usuario - CON AUTENTICACIÓN JWT
-export const deleteUser = async (id: string): Promise<void> => {
+// 🔹 Eliminar usuario
+export const deleteUser = async (token: string, id: string): Promise<void> => {
   try {
-    const config = getAuthConfig();
+    const config = createAuthConfig(token);
     await axios.delete(`${BASE_URL}${id}/`, config);
-    console.log('✅ Usuario eliminado exitosamente');
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
-      console.error(`❌ Error eliminando usuario ${id}:`, error.response?.data);
-      
-      if (error.response?.status === 401) {
-        throw new Error('Sesión expirada. Por favor, vuelve a iniciar sesión.');
-      }
-      
-      throw new Error(error.response?.data?.detail || 'Error al eliminar usuario');
+      const message = error.response?.data?.detail || 
+                     error.response?.data?.error || 
+                     'Error al eliminar usuario';
+      throw new Error(message);
+    }
+    throw error;
+  }
+};
+
+// 🔹 Obtener usuario por ID
+export const getUserById = async (token: string, id: string): Promise<IUser> => {
+  try {
+    const config = createAuthConfig(token);
+    const response = await axios.get<IUser>(`${BASE_URL}/${id}/`, config);
+    return response.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      const message = error.response?.data?.detail || 
+                     error.response?.data?.error || 
+                     'Error al obtener usuario';
+      throw new Error(message);
     }
     throw error;
   }

@@ -1,21 +1,28 @@
-// components/auth/SignInForm.tsx
+// components/auth/SignInForm.tsx - VERSIÓN CORREGIDA
 import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth, type User } from "../../context/AuthContext";
 
 interface LoginFormData {
   username: string;
   password: string;
 }
 
+// 🔹 CORREGIR la interfaz de respuesta
 interface LoginResponse {
-  access: string;
-  refresh: string;
+  success: boolean;
+  message: string;
+  user: User;
+  tokens: {
+    access: string;
+    refresh: string;
+  };
+  detail?: string;
 }
 
 export default function SignInForm() {
@@ -29,8 +36,6 @@ export default function SignInForm() {
   const [error, setError] = useState("");
   
   const { login } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -54,8 +59,8 @@ export default function SignInForm() {
     try {
       console.log('🔐 Intentando login...', { username: formData.username, password: '***' });
 
-      // 🔹 USAR EL ENDPOINT JWT CORRECTO
-      const response = await fetch('http://localhost:8000/api/auth/login/', {
+      // 🔹 1. Obtener token JWT y datos del usuario
+      const response = await fetch('http://localhost:8000/api/users/auth/login/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -64,59 +69,42 @@ export default function SignInForm() {
       });
 
       const data: LoginResponse = await response.json();
+      console.log('📨 Respuesta del servidor:', data);
 
       if (!response.ok) {
-        throw new Error(data.detail || `Error ${response.status}: ${response.statusText}`);
+        throw new Error(data.detail || data.message || `Error ${response.status}: ${response.statusText}`);
       }
 
-      if (data.access) {
+      // 🔹 CORRECCIÓN: Verificar la estructura correcta
+      if (data.success && data.tokens?.access && data.user) {
         console.log('✅ Login exitoso, token recibido');
+        console.log('👤 Datos del usuario:', data.user);
+        console.log('🔑 Token de acceso:', data.tokens.access);
         
-        // 🔹 OBTENER LOS DATOS DEL USUARIO CON EL TOKEN
-        const userResponse = await fetch('http://localhost:8000/api/users/me/', {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${data.access}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (userResponse.ok) {
-          const userData = await userResponse.json();
-          console.log('✅ Datos de usuario obtenidos:', userData);
-          
-          // 🔹 GUARDAR TOKEN Y USUARIO
-          login(userData, data.access);
-        } else {
-          // Si no hay endpoint /me, crear usuario básico con los datos del login
-          const basicUser = {
-            id: 'temp-id',
-            nombres: 'Usuario',
-            apellidos: 'Sistema',
-            username: formData.username,
-            correo: `${formData.username}@sistema.com`,
-            rol: 'odontologo' as const,
-            status: true
-          };
-          login(basicUser, data.access);
-        }
+        // 🔹 2. Usar los datos que ya vienen en la respuesta
+        login(data.user, data.tokens.access);
+        
       } else {
-        setError('No se recibió token de acceso');
+        console.error('❌ Estructura de respuesta inválida:', data);
+        setError('Respuesta del servidor inválida');
       }
-    } catch (error: any) {
+      
+    } catch (error: unknown) {
       console.error('❌ Error en login:', error);
-      setError(error.message || 'Error de conexión con el servidor');
+      const errorMessage = error instanceof Error ? error.message : 'Error de conexión con el servidor';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
+  // El resto del código permanece igual...
   return (
     <div className="flex flex-col flex-1">
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div>
           <div className="mb-5 sm:mb-8">
-            <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
+            <h1 className="mb-2 font-semibold text-center text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
               Iniciar sesión
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -144,7 +132,6 @@ export default function SignInForm() {
                     placeholder="Introduce tu usuario" 
                     required
                     disabled={loading}
-                  
                   />
                 </div>
                 <div>
@@ -161,7 +148,6 @@ export default function SignInForm() {
                       placeholder="Introduce tu contraseña"
                       required
                       disabled={loading}
-             
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -195,7 +181,6 @@ export default function SignInForm() {
                 </div>
                 <div>
                   <Button 
-    
                     className="w-full" 
                     size="sm"
                     disabled={loading}

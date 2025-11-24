@@ -5,6 +5,7 @@ import type { IUser } from '../types/IUser';
 export interface UserFormData {
   nombres: string;
   apellidos: string;
+  telefono: string,
   correo: string;
   contrasena: string;
   confirmar_contrasena: string;
@@ -16,6 +17,7 @@ export function useUserForm(initialUser: IUser | null = null) {
   const [formData, setFormData] = useState<UserFormData>({
     nombres: '',
     apellidos: '',
+    telefono: '',
     correo: '',
     contrasena: '',
     confirmar_contrasena: '',
@@ -29,6 +31,7 @@ export function useUserForm(initialUser: IUser | null = null) {
     setFormData({
       nombres: '',
       apellidos: '',
+      telefono: '',
       correo: '',
       contrasena: '',
       confirmar_contrasena: '',
@@ -51,6 +54,7 @@ export function useUserForm(initialUser: IUser | null = null) {
 
     if (!formData.nombres.trim()) errors.push('Nombres es obligatorio');
     if (!formData.apellidos.trim()) errors.push('Apellidos es obligatorio');
+    if (!formData.telefono.trim()) errors.push('Telefono es obligatorio');
     if (!formData.correo.trim()) errors.push('Correo electrónico es obligatorio');
     if (!formData.rol) errors.push('Rol es obligatorio');
 
@@ -81,6 +85,7 @@ export function useUserForm(initialUser: IUser | null = null) {
     const userData: any = {
       nombres: formData.nombres.trim(),
       apellidos: formData.apellidos.trim(),
+      telefono: formData.telefono.trim(),
       correo: formData.correo.trim(),
       rol: formData.rol,
       status: formData.status
@@ -103,6 +108,7 @@ export function useUserForm(initialUser: IUser | null = null) {
     setFormData({
       nombres: user.nombres || '',
       apellidos: user.apellidos || '',
+      telefono: user.telefono || '',
       correo: user.correo || '',
       contrasena: '',
       confirmar_contrasena: '',

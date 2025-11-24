@@ -1,4 +1,4 @@
-// users/UserMain.tsx
+// users/UserMain.tsx - VERSIÓN COMPLETA CORREGIDA
 import { useState, useMemo } from 'react';
 import { Modal } from "../../ui/modal";
 import { useModal } from "../../../hooks/useModal";
@@ -19,7 +19,16 @@ export default function UserMain() {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [successType, setSuccessType] = useState<"edit" | "delete">("edit");
 
-  const { users, loading, error, handleUpdateUser, handleDeleteUser, fetchUsers } = useUsers();
+  // ✅ NOMBRES CORRECTOS según tu hook useUsers
+  const { 
+    users, 
+    loading, 
+    error, 
+    editUser,        // ← nombre correcto
+    removeUser,      // ← nombre correcto  
+    loadUsers        // ← nombre correcto
+  } = useUsers();
+
   const { 
     formData, 
     selectedUser, 
@@ -88,11 +97,13 @@ export default function UserMain() {
       const userData = prepareUserData(isEditing);
       
       if (isEditing && selectedUser) {
-        await handleUpdateUser(selectedUser.id, userData as IUpdateUserData);
+        // ✅ USANDO editUser (nombre correcto)
+        await editUser(selectedUser.id, userData as IUpdateUserData);
         setSuccessType("edit");
       }
       
-      await fetchUsers();
+      // ✅ USANDO loadUsers (nombre correcto)
+      await loadUsers();
       closeUserModal();
       resetForm();
       openSuccessModal();
@@ -108,7 +119,8 @@ export default function UserMain() {
   const confirmDeleteUser = async () => {
     if (!userToDelete) return;
     try {
-      await handleDeleteUser(userToDelete.id);
+      // ✅ USANDO removeUser (nombre correcto)
+      await removeUser(userToDelete.id);
       closeDeleteModal();
       setUserToDelete(null);
       setSuccessType("delete");
@@ -136,8 +148,8 @@ export default function UserMain() {
   }
 
   return (
-    <div >
-      {/* Header sin botón de crear */}
+    <div>
+      {/* ... resto del JSX (igual que antes) ... */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white/90">Gestión de Usuarios</h1>
@@ -146,7 +158,6 @@ export default function UserMain() {
           </p>
         </div>
         
-        {/* Mostrar contador de usuarios */}
         <div className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
           {users.length} usuario(s) registrado(s)
         </div>
@@ -182,7 +193,6 @@ export default function UserMain() {
         />
       )}
 
-      {/* Modal para editar usuario */}
       <UserForm
         isOpen={isUserModalOpen}
         onClose={() => { closeUserModal(); resetForm(); }}
@@ -207,7 +217,6 @@ export default function UserMain() {
         onConfirm={confirmDeleteUser}
       />
 
-      {/* Modal de éxito actualizado (sin opción de creación) */}
       <Modal isOpen={isSuccessModalOpen} onClose={closeSuccessModal} className="max-w-md p-6">
         <div className="flex flex-col items-center text-center">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4 dark:bg-green-900/20">

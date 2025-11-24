@@ -1,9 +1,7 @@
-// users/UserForm.tsx - VERSIÓN MEJORADA
+// users/UserForm.tsx - VERSIÓN CORREGIDA Y ORGANIZADA
 import type { UserFormProps } from "../../../types/IUser";
 import { Modal } from "../../ui/modal";
-import { useState } from "react"; // ← Agregar este import
-
-
+import { useState } from "react";
 
 export function UserForm({
   isOpen,
@@ -93,19 +91,17 @@ export function UserForm({
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Rol *
+                Teléfono *
               </label>
-              <select
-                name="rol"
-                value={formData.rol}
+              <input
+                type="tel"
+                name="telefono"
+                value={formData.telefono || ''}
                 onChange={onInputChange}
                 required
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              >
-                <option value="asistente">Asistente</option>
-                <option value="odontologo">Odontólogo</option>
-                <option value="admin">Administrador</option>
-              </select>
+                placeholder="Ej: 3001234567"
+              />
             </div>
           </div>
 
@@ -124,6 +120,23 @@ export function UserForm({
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 placeholder="usuario@ejemplo.com"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Rol *
+              </label>
+              <select
+                name="rol"
+                value={formData.rol}
+                onChange={onInputChange}
+                required
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              >
+                <option value="asistente">Asistente</option>
+                <option value="odontologo">Odontólogo</option>
+                <option value="admin">Administrador</option>
+              </select>
             </div>
 
             {/* SOLO PARA CREACIÓN O SI QUIERE CAMBIAR CONTRASEÑA */}
@@ -165,11 +178,16 @@ export function UserForm({
                 <button
                   type="button"
                   onClick={() => setShowPasswordFields(true)}
-                  className="w-full p-3 text-blue-600 border border-blue-300 rounded-lg hover:bg-blue-50 dark:border-blue-600 dark:text-blue-400 dark:hover:bg-blue-900/20"
+                  className="w-full p-3 text-blue-600 border border-blue-300 rounded-lg hover:bg-blue-50 dark:border-blue-600 dark:text-blue-400 dark:hover:bg-blue-900/20 transition-colors"
                 >
-                  ✏️ Cambiar contraseña
+                  <div className="flex items-center justify-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Cambiar contraseña
+                  </div>
                 </button>
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-gray-500 mt-2 text-center">
                   Opcional: Solo complete si desea cambiar la contraseña
                 </p>
               </div>
@@ -177,9 +195,9 @@ export function UserForm({
           </div>
         </div>
 
-        {/* Checkbox de estado */}
-        <div className="mt-6 flex items-center">
-          <label className="flex items-center space-x-3">
+        {/* Checkbox de estado - Centrado */}
+        <div className="mt-6 flex justify-start">
+          <label className="flex items-center space-x-3 bg-gray-50 dark:bg-gray-800 px-4 py-3 rounded-lg">
             <input
               type="checkbox"
               name="status"
@@ -202,16 +220,23 @@ export function UserForm({
               onClose();
             }}
             disabled={loading}
-            className="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
+            className="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 transition-colors"
           >
             Cancelar
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-3 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+            className="px-6 py-3 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors"
           >
-            {loading ? 'Guardando...' : (isEditing ? "Actualizar Usuario" : "Crear Usuario")}
+            {loading ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Guardando...
+              </div>
+            ) : (
+              isEditing ? "Actualizar Usuario" : "Crear Usuario"
+            )}
           </button>
         </div>
       </form>
