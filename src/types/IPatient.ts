@@ -4,7 +4,7 @@ import type { PatientFormData } from "../hooks/usePatientForm";
 // Definición de tipos para el paciente
 export interface IPatient {
   id: string;
-  status: boolean;
+  activo: boolean;
   nombres: string;
   apellidos: string;
   cedula_pasaporte: string;

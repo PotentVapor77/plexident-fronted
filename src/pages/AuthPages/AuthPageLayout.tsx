@@ -6,13 +6,13 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 flex">
-      {/* Mitad izquierda - Formulario */}
-      <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 lg:flex-none">
-        <div className="mx-auto w-full max-w-sm lg:w-96">
+    <div className="min-h-screen bg-white dark:bg-gray-900 flex flex-col lg:flex-row">
+      {/* Mitad izquierda - Formulario (siempre visible) */}
+      <div className="flex-1 flex flex-col justify-center py-8 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-sm">
           
           {/* Form Container */}
-          <div className="bg-white dark:bg-gray-800 py-8 px-4 shadow sm:rounded-lg sm:px-6">
+          <div className="bg-white dark:bg-gray-800 py-6 px-4 shadow sm:rounded-lg">
             {children}
           </div>
 
@@ -40,15 +40,13 @@ export default function AuthLayout({
         </div>
       </div>
 
-      {/* Mitad derecha - Imagen que ocupa toda la mitad */}
-      <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-center bg-blue-600 dark:bg-blue-900">
-        <div className="w-full h-full flex items-center justify-center">
-          <img
-            src="/images/logo1/LogoLogin1.png"
-            alt="Plexident Logo"
-            className="w-full h-full object-cover"
-          />
-        </div>
+      {/* Mitad derecha - Imagen que cubre TODO el espacio */}
+      <div className="hidden lg:flex lg:flex-1 relative overflow-hidden">
+        <img
+          src="/images/logo1/LogoLogin1.png"
+          alt="Plexident Logo"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
       </div>
     </div>
   );

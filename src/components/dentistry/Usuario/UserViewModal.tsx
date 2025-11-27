@@ -110,8 +110,8 @@ export function UserViewModal({ isOpen, onClose, user, onEdit }: UserViewModalPr
               <div>
                 <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Estado</label>
                 <div className="mt-1">
-                  <Badge size="sm" color={getStatusColor(user.status)}>
-                    {getStatusText(user.status)}
+                  <Badge size="sm" color={getStatusColor(user.activo)}>
+                    {getStatusText(user.activo)}
                   </Badge>
                 </div>
               </div>

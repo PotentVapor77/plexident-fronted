@@ -71,6 +71,7 @@ export function UserTable({
           <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
             <TableRow>
               <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Usuario</TableCell>
+              <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Username</TableCell>
               <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Telefono</TableCell>
               <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Correo</TableCell>
               <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Rol</TableCell>
@@ -85,8 +86,8 @@ export function UserTable({
           <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
             {currentData.length > 0 ? (
               currentData.map((user: IUser) => {
-                const statusText = getStatusText(user.status);
-                const statusColor = getStatusColor(user.status);
+                const statusText = getStatusText(user.activo);
+                const statusColor = getStatusColor(user.activo);
                 const rolText = getRolText(user.rol);
                 const rolColor = getRolColor(user.rol);
                 
@@ -106,6 +107,9 @@ export function UserTable({
                       </div>
                     </TableCell>
                     <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                      {user.username}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                       {user.telefono}
                     </TableCell>
                     <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
@@ -122,10 +126,10 @@ export function UserTable({
                       </Badge>
                     </TableCell>
                     <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                      {user.created_at? new Date(user.created_at).toLocaleDateString() : 'N/A'}
+                      {user.fecha_creacion? new Date(user.fecha_creacion).toLocaleDateString() : 'N/A'}
                     </TableCell>
                      <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                      {user.updated_at ? new Date(user.updated_at).toLocaleDateString() : 'N/A'}
+                      {user.fecha_modificacion ? new Date(user.fecha_modificacion).toLocaleDateString() : 'N/A'}
                     </TableCell>
                     <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                       <div className="flex items-center gap-2">

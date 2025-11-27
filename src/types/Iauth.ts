@@ -6,7 +6,7 @@ export interface User {
   username: string;
   correo: string;
   rol: 'admin' | 'odontologo' | 'asistente';
-  status: boolean;
+  activo: boolean;
 }
 
 export interface LoginResponse {

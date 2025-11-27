@@ -10,7 +10,7 @@ export interface UserFormData {
   contrasena: string;
   confirmar_contrasena: string;
   rol: 'admin' | 'odontologo' | 'asistente';
-  status: boolean;
+  activo: boolean;
 }
 
 export function useUserForm(initialUser: IUser | null = null) {
@@ -22,7 +22,7 @@ export function useUserForm(initialUser: IUser | null = null) {
     contrasena: '',
     confirmar_contrasena: '',
     rol: 'asistente',
-    status: true
+    activo: true
   });
 
   const [selectedUser, setSelectedUser] = useState<IUser | null>(initialUser);
@@ -36,7 +36,7 @@ export function useUserForm(initialUser: IUser | null = null) {
       contrasena: '',
       confirmar_contrasena: '',
       rol: 'asistente',
-      status: true
+      activo: true
     });
     setSelectedUser(null);
   };
@@ -88,7 +88,7 @@ export function useUserForm(initialUser: IUser | null = null) {
       telefono: formData.telefono.trim(),
       correo: formData.correo.trim(),
       rol: formData.rol,
-      status: formData.status
+      status: formData.activo
     };
 
     // ✅ CORREGIDO: Enviar 'contrasena' en texto plano (el backend la hashea)
@@ -113,7 +113,7 @@ export function useUserForm(initialUser: IUser | null = null) {
       contrasena: '',
       confirmar_contrasena: '',
       rol: user.rol || 'asistente',
-      status: user.status ?? true
+      activo: user.activo ?? true
     });
   };
 

@@ -1,9 +1,9 @@
 // hooks/usePatientForm.ts
 import { useState } from 'react';
-import type { Patient } from '../services/patientService';
+import type{ IPatient } from '../types/IPatient';
 
 export interface PatientFormData {
-  status: boolean;
+  activo: boolean;
   nombres: string;
   apellidos: string;
   cedula_pasaporte: string;
@@ -19,9 +19,9 @@ export interface PatientFormData {
   habitos: string;
 }
 
-export function usePatientForm(initialPatient: Patient | null = null) {
+export function usePatientForm(initialPatient: IPatient | null = null) {
   const [formData, setFormData] = useState<PatientFormData>({
-    status: true,
+    activo: true,
     nombres: '',
     apellidos: '',
     cedula_pasaporte: '',
@@ -37,11 +37,11 @@ export function usePatientForm(initialPatient: Patient | null = null) {
     habitos: ''
   });
 
-  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(initialPatient);
+  const [selectedPatient, setSelectedPatient] = useState<IPatient | null>(initialPatient);
 
   const resetForm = () => {
     setFormData({
-      status: true,
+      activo: true,
       nombres: '',
       apellidos: '',
       cedula_pasaporte: '',
@@ -119,14 +119,14 @@ export function usePatientForm(initialPatient: Patient | null = null) {
     };
   };
 
-  const loadPatientData = (patient: Patient) => {
+  const loadPatientData = (patient: IPatient) => {
     setSelectedPatient(patient);
     const formattedDate = patient.fecha_nacimiento 
       ? new Date(patient.fecha_nacimiento).toISOString().split('T')[0]
       : '';
     
     setFormData({
-      status: patient.status ?? true,
+      activo: patient.activo ?? true,
       nombres: patient.nombres || '',
       apellidos: patient.apellidos || '',
       cedula_pasaporte: patient.cedula_pasaporte || '',

@@ -10,7 +10,7 @@ export interface User {
   username: string;
   correo: string;
   rol: 'admin' | 'odontologo' | 'asistente';
-  status: boolean;
+  activo: boolean;
   telefono?: string;
   fecha_creacion?: string;
   fecha_actualizacion?: string;
@@ -104,7 +104,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       username: userData.username || 'usuario',
       correo: userData.correo || 'usuario@sistema.com',
       rol: userData.rol || 'odontologo',
-      status: userData.status !== undefined ? userData.status : true,
+      activo: userData.activo !== undefined ? userData.activo : true,
       telefono: userData.telefono,
       fecha_creacion: userData.fecha_creacion,
       fecha_actualizacion: userData.fecha_actualizacion,

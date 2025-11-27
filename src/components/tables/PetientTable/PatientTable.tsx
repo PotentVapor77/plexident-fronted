@@ -68,8 +68,8 @@ export function PatientTable({
           <TableBody className="divide-y divide-gray-200 dark:divide-gray-700">
             {currentData.length > 0 ? (
               currentData.map((patient: IPatient) => {
-                const statusText = getStatusText(patient.status);
-                const badgeColor = getStatusColor(patient.status);
+                const statusText = getStatusText(patient.activo);
+                const badgeColor = getStatusColor(patient.activo);
                 
                 return (
                   <TableRow key={patient.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">

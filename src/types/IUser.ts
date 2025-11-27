@@ -4,32 +4,36 @@ export interface IUser {
   id: string;
   nombres: string;
   apellidos: string;
+  username:string;
   telefono?: string; 
   correo: string;
+  password: string; 
   rol: 'admin' | 'odontologo' | 'asistente';
-  status?: boolean;
-  created_at?: string;
-  updated_at?: string;
+  activo?: boolean;
+  fecha_creacion?: string;
+  fecha_modificacion?: string;
 }
 
 export interface ICreateUserData {
   nombres: string;
   apellidos: string;
+  username:string;
   telefono?: string; 
   correo: string;
-  contrasena: string; // Se envía como texto plano, el backend la hashea
+  password: string; // Se envía como texto plano, el backend la hashea
   rol: 'admin' | 'odontologo' | 'asistente';
-  status?: boolean;
+  activo?: boolean;
 }
 
 export interface IUpdateUserData {
   nombres?: string;
   apellidos?: string;
+  username:string;
   correo?: string;
   telefono?: string; 
-  contrasena?: string;
+  password?: string;
   rol?: 'admin' | 'odontologo' | 'asistente';
-  status?: boolean;
+  activo?: boolean;
 }
 
 
@@ -66,13 +70,13 @@ export interface UserFormPageProps {
 
 
 export interface UserFormData {
-  status: boolean;
+  activo: boolean;
   nombres: string;
   apellidos: string;
+  username:string;
   telefono: string;
   correo: string;
-  contrasena: string;
-  confirmar_contrasena: string;
+  password: string;
   rol: 'admin' | 'odontologo' | 'asistente';
 }
 
